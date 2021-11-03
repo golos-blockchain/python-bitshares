@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 known_chains = {
-    "BTS": {
-        "chain_id": "4018d7844c78f6a6c41c6a552b898022310fc5dec06da467ee7905a8dad512c8",
-        "core_symbol": "BTS",
-        "prefix": "BTS",
+    "GPH": {
+        "chain_id": "7fcf452d6bb058949cdc875b13c8908c8f54b0f264c39faf8152b682af0740ee",
+        "core_symbol": "GPH",
+        "prefix": "GPH",
     },
     "CTS": {
         "chain_id": "53952fc10d52a3af6d572a298e8f99a0a2e7afd0f7dbad354d8d65e8c36c962d",
