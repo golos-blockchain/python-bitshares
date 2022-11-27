@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
 
+import struct # golos asset
+
 from graphenebase.types import (
     Array,
     Bool,
@@ -45,6 +47,7 @@ from .objects import (
     isArgsThisClass,
     AssertPredicate,
 )
+from bitshares.amount import Amount
 from .operationids import operations
 
 
@@ -371,8 +374,51 @@ class Proposal_update(GrapheneObject):
                 )
             )
 
+asset_precision = {
+    "GOLOS": 3,
+    "GESTS": 6,
+    "GBG": 3,
+}
 
-class Limit_order_create(GrapheneObject):
+class GolosAmount:
+    def __init__(self, *args):
+        # Warning: amount is float!
+        if len(args) == 3:
+            self.amount = args[0]
+            self.precision = args[1]
+            self.asset = args[2]
+        elif isinstance(args[0], Amount):
+            self.amount = args[0]['amount']
+            self.precision = args[0]['asset']['precision']
+            assert self.precision
+            self.asset = args[0]['symbol']
+        else:
+            self.amount, self.asset = args[0].strip().split(" ")
+            self.precision = len(self.amount.split('.')[-1])
+
+        self.amount = float(self.amount)
+
+        if self.asset in asset_precision:
+            self.precision = asset_precision[self.asset]
+            self.isUIA = False
+        else:
+            self.isUIA = True
+
+    def __bytes__(self):
+        # padding
+        sym_len = len(self.asset)
+        is_v2 = sym_len > 6
+        sym_pad = (15 if is_v2 else 7) - sym_len
+        asset = self.asset + "\x00" * sym_pad
+        amount = round(float(self.amount) * 10 ** self.precision)
+        precision = (self.precision + 100) if is_v2 else self.precision
+        return struct.pack("<q", amount) + struct.pack("<b", precision) + bytes(asset, "ascii")
+
+    def __str__(self):
+        return "{:.{}f} {}".format(self.amount, self.precision, self.asset)
+
+
+class Limit_order_create_BS(GrapheneObject):
     def __init__(self, *args, **kwargs):
         if isArgsThisClass(self, args):
             self.data = args[0].data
@@ -389,6 +435,26 @@ class Limit_order_create(GrapheneObject):
                         ("expiration", PointInTime(kwargs["expiration"])),
                         ("fill_or_kill", Bool(kwargs["fill_or_kill"])),
                         ("extensions", Set([])),
+                    ]
+                )
+            )
+
+class Limit_order_create(GrapheneObject):
+    def __init__(self, *args, **kwargs):
+        if isArgsThisClass(self, args):
+            self.data = args[0].data
+        else:
+            if len(args) == 1 and len(kwargs) == 0:
+                kwargs = args[0]
+            super().__init__(
+                OrderedDict(
+                    [
+                        ("owner", String(kwargs["owner"])),
+                        ("orderid", Uint32(int(kwargs["orderid"]))),
+                        ("amount_to_sell", GolosAmount(kwargs['amount_to_sell'])),
+                        ("min_to_receive", GolosAmount(kwargs['min_to_receive'])),
+                        ("fill_or_kill", Bool(kwargs["fill_or_kill"])),
+                        ("expiration", PointInTime(kwargs["expiration"])),
                     ]
                 )
             )
