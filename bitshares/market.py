@@ -593,28 +593,17 @@ class Market(dict):
                 amount, self["quote"]["symbol"], blockchain_instance=self.blockchain
             )
 
+        orderid = random.getrandbits(32)
+        min_to_receive = Amount(float(amount) * float(price),
+            self['base']['symbol'], blockchain_instance=self.blockchain)
         order = operations.Limit_order_create(
             **{
-                "fee": {"amount": 0, "asset_id": "1.3.0"},
-                "seller": account["id"],
-                "amount_to_sell": {
-                    "amount": int(
-                        round(float(amount) * 10 ** self["quote"]["precision"])
-                    ),
-                    "asset_id": self["quote"]["id"],
-                },
-                "min_to_receive": {
-                    "amount": int(
-                        round(
-                            float(amount)
-                            * float(price)
-                            * 10 ** self["base"]["precision"]
-                        )
-                    ),
-                    "asset_id": self["base"]["id"],
-                },
-                "expiration": formatTimeFromNow(expiration),
+                "owner": account.name,
+                "orderid": orderid,
+                'amount_to_sell': amount,
+                'min_to_receive': min_to_receive,
                 "fill_or_kill": killfill,
+                "expiration": formatTimeFromNow(expiration),
             }
         )
         if returnOrderId:
