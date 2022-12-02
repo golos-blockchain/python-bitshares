@@ -460,7 +460,7 @@ class Limit_order_create(GrapheneObject):
             )
 
 
-class Limit_order_cancel(GrapheneObject):
+class Limit_order_cancel_BS(GrapheneObject):
     def __init__(self, *args, **kwargs):
         if isArgsThisClass(self, args):
             self.data = args[0].data
@@ -481,6 +481,21 @@ class Limit_order_cancel(GrapheneObject):
                 )
             )
 
+class Limit_order_cancel(GrapheneObject):
+    def __init__(self, *args, **kwargs):
+        if isArgsThisClass(self, args):
+            self.data = args[0].data
+        else:
+            if len(args) == 1 and len(kwargs) == 0:
+                kwargs = args[0]
+            super().__init__(
+                OrderedDict(
+                    [
+                        ("owner", String(kwargs["owner"])),
+                        ("orderid", Uint32(int(kwargs["orderid"]))),
+                    ]
+                )
+            )
 
 class Call_order_update(GrapheneObject):
     def __init__(self, *args, **kwargs):

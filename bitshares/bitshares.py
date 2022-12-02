@@ -930,6 +930,7 @@ class BitShares(AbstractGrapheneChain):
             :param str orderNumbers: The Order Object ide of the form
                 ``1.7.xxxx``
         """
+
         if not account:
             if "default_account" in self.config:
                 account = self.config["default_account"]
@@ -940,19 +941,21 @@ class BitShares(AbstractGrapheneChain):
         if not isinstance(orderNumbers, (list, set, tuple)):
             orderNumbers = {orderNumbers}
 
+        orders = self.rpc.get_objects(orderNumbers)
+
         op = []
+        i = 0
         for order in orderNumbers:
+            orderid = orders[i]['_orig_id']
             op.append(
                 operations.Limit_order_cancel(
                     **{
-                        "fee": {"amount": 0, "asset_id": "1.3.0"},
-                        "fee_paying_account": account["id"],
-                        "order": order,
-                        "extensions": [],
-                        "prefix": self.prefix,
+                        "owner": account.name,
+                        "orderid": orderid
                     }
                 )
             )
+            i += 1
         return self.finalizeOp(op, account["name"], "active", **kwargs)
 
     def vesting_balance_withdraw(self, vesting_id, amount=None, account=None, **kwargs):
