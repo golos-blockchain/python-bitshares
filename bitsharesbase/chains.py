@@ -11,8 +11,8 @@ known_chains = {
         "prefix": "CTS",
     },
     "TEST": {
-        "chain_id": "39f5e2ede1f8bc1a3a54a7914414e3779e33193f1f5693510e73cb7a87617447",
-        "core_symbol": "TEST",
-        "prefix": "TEST",
+        "chain_id": "5876894a41e6361bde2e73278f07340f2eb8b41c2facd29099de9deef6cdb679",
+        "core_symbol": "GLS",
+        "prefix": "GLS",
     },
 }
