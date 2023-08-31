@@ -22,7 +22,7 @@ wif = wifs[0]
 
 # bitshares instance
 bitshares = BitShares(
-    "wss://node.bitshares.eu", keys=wifs, nobroadcast=True, num_retries=1
+    "wss://bitshares.openledger.info/ws", keys=wifs, nobroadcast=True, num_retries=1
 )
 config = bitshares.config
 
@@ -53,7 +53,7 @@ def fixture_data():
 
     proposals = []
     for proposal in data.get("proposals", []):
-        ops = list()
+        ops = []
         for _op in proposal["operations"]:
             for opName, op in _op.items():
                 ops.append([operations[opName], op])

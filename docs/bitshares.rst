@@ -1,10 +1,19 @@
 bitshares package
 =================
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 6
+
+   bitshares.aio
+
 Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 6
 
    bitshares.account
    bitshares.amount

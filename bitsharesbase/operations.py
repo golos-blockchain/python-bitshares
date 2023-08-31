@@ -26,6 +26,7 @@ from graphenebase.types import (
     Ripemd160,
     Sha1,
     Sha256,
+    Hash160,
 )
 
 from .account import PublicKey
@@ -67,20 +68,17 @@ def fill_classmaps():
 
 
 def getOperationClassForId(op_id):
-    """ Convert an operation id into the corresponding class
-    """
+    """Convert an operation id into the corresponding class."""
     return class_idmap[op_id] if op_id in class_idmap else None
 
 
 def getOperationIdForClass(name):
-    """ Convert an operation classname into the corresponding id
-    """
+    """Convert an operation classname into the corresponding id."""
     return class_namemap[name] if name in class_namemap else None
 
 
 def getOperationNameForId(i):
-    """ Convert an operation id into the corresponding string
-    """
+    """Convert an operation id into the corresponding string."""
     for key in operations:
         if int(operations[key]) is int(i):
             return key
@@ -1022,7 +1020,7 @@ class Asset_settle(GrapheneObject):
 
 
 class HtlcHash(Static_variant):
-    elements = [Ripemd160, Sha1, Sha256]
+    elements = [Ripemd160, Sha1, Sha256, Hash160]
 
     def __init__(self, o):
         id = o[0]
@@ -1121,6 +1119,173 @@ class Assert(GrapheneObject):
                                 ]
                             ),
                         ),
+                        ("extensions", Set([])),
+                    ]
+                )
+            )
+
+ticket_type_strings = ['liquid', 'lock_180_days', 'lock_360_days', 'lock_720_days', 'lock_forever']
+
+class Ticket_create_operation(GrapheneObject):
+    def __init__(self, *args, **kwargs):
+        if isArgsThisClass(self, args):
+            self.data = args[0].data
+        else:
+            if len(args) == 1 and len(kwargs) == 0:
+                kwargs = args[0]
+
+            if isinstance(kwargs["target_type"], int):
+                target_type = Varint32(kwargs["target_type"])
+            else:
+                target_type = Varint32(ticket_type_strings.index(kwargs["target_type"]))
+
+            super().__init__(
+                OrderedDict(
+                    [
+                        ("fee", Asset(kwargs["fee"])),
+                        ("account", ObjectId(kwargs["account"], "account")),
+                        ("target_type", target_type),
+                        ("amount", Asset(kwargs["amount"])),
+                        ("extensions", Set([])),
+                    ]
+                )
+            )
+
+class Ticket_update_operation(GrapheneObject):
+    def __init__(self, *args, **kwargs):
+        if isArgsThisClass(self, args):
+            self.data = args[0].data
+        else:
+            if len(args) == 1 and len(kwargs) == 0:
+                kwargs = args[0]
+
+            if isinstance(kwargs["target_type"], int):
+                target_type = Varint32(kwargs["target_type"])
+            else:
+                target_type = Varint32(ticket_type_strings.index(kwargs["target_type"]))
+
+            if kwargs.get("amount_for_new_target"):
+                amount_for_new_target = Optional(Asset(kwargs["amount_for_new_target"]))
+            else:
+                amount_for_new_target = Optional(None)
+
+            super().__init__(
+                OrderedDict(
+                    [
+                        ("fee", Asset(kwargs["fee"])),
+                        ("ticket", ObjectId(kwargs["ticket"], "ticket")),
+                        ("account", ObjectId(kwargs["account"], "account")),
+                        ("target_type", target_type),
+                        ("amount_for_new_target", amount_for_new_target),
+                        ("extensions", Set([])),
+                    ]
+                )
+            )
+
+
+class Liquidity_pool_create(GrapheneObject):
+    def __init__(self, *args, **kwargs):
+        if isArgsThisClass(self, args):
+            self.data = args[0].data
+        else:
+            if len(args) == 1 and len(kwargs) == 0:
+                kwargs = args[0]
+
+            super().__init__(
+                OrderedDict(
+                    [
+                        ("fee", Asset(kwargs["fee"])),
+                        ("account", ObjectId(kwargs["account"], "account")),
+                        ("asset_a", ObjectId(kwargs["asset_a"], "asset")),
+                        ("asset_b", ObjectId(kwargs["asset_b"], "asset")),
+                        ("share_asset", ObjectId(kwargs["share_asset"], "asset")),
+                        ("taker_fee_percent", Uint16(kwargs["taker_fee_percent"])),
+                        ("withdrawal_fee_percent", Uint16(kwargs["withdrawal_fee_percent"])),
+                        ("extensions", Set([])),
+                    ]
+                )
+            )
+
+
+class Liquidity_pool_delete(GrapheneObject):
+    def __init__(self, *args, **kwargs):
+        if isArgsThisClass(self, args):
+            self.data = args[0].data
+        else:
+            if len(args) == 1 and len(kwargs) == 0:
+                kwargs = args[0]
+
+            super().__init__(
+                OrderedDict(
+                    [
+                        ("fee", Asset(kwargs["fee"])),
+                        ("account", ObjectId(kwargs["account"], "account")),
+                        ("pool", ObjectId(kwargs["pool"], "liquidity_pool")),
+                        ("extensions", Set([])),
+                    ]
+                )
+            )
+
+
+class Liquidity_pool_deposit(GrapheneObject):
+    def __init__(self, *args, **kwargs):
+        if isArgsThisClass(self, args):
+            self.data = args[0].data
+        else:
+            if len(args) == 1 and len(kwargs) == 0:
+                kwargs = args[0]
+
+            super().__init__(
+                OrderedDict(
+                    [
+                        ("fee", Asset(kwargs["fee"])),
+                        ("account", ObjectId(kwargs["account"], "account")),
+                        ("pool", ObjectId(kwargs["pool"], "liquidity_pool")),
+                        ("amount_a", Asset(kwargs["amount_a"])),
+                        ("amount_b", Asset(kwargs["amount_b"])),
+                        ("extensions", Set([])),
+                    ]
+                )
+            )
+
+
+class Liquidity_pool_withdraw(GrapheneObject):
+    def __init__(self, *args, **kwargs):
+        if isArgsThisClass(self, args):
+            self.data = args[0].data
+        else:
+            if len(args) == 1 and len(kwargs) == 0:
+                kwargs = args[0]
+
+            super().__init__(
+                OrderedDict(
+                    [
+                        ("fee", Asset(kwargs["fee"])),
+                        ("account", ObjectId(kwargs["account"], "account")),
+                        ("pool", ObjectId(kwargs["pool"], "liquidity_pool")),
+                        ("share_amount", Asset(kwargs["share_amount"])),
+                        ("extensions", Set([])),
+                    ]
+                )
+            )
+
+
+class Liquidity_pool_exchange(GrapheneObject):
+    def __init__(self, *args, **kwargs):
+        if isArgsThisClass(self, args):
+            self.data = args[0].data
+        else:
+            if len(args) == 1 and len(kwargs) == 0:
+                kwargs = args[0]
+
+            super().__init__(
+                OrderedDict(
+                    [
+                        ("fee", Asset(kwargs["fee"])),
+                        ("account", ObjectId(kwargs["account"], "account")),
+                        ("pool", ObjectId(kwargs["pool"], "liquidity_pool")),
+                        ("amount_to_sell", Asset(kwargs["amount_to_sell"])),
+                        ("min_to_receive", Asset(kwargs["min_to_receive"])),
                         ("extensions", Set([])),
                     ]
                 )
