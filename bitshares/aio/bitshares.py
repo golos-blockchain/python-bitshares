@@ -30,6 +30,9 @@ from ..bitshares import BitShares as SyncBitShares
 
 log = logging.getLogger(__name__)
 
+class GolosTransactionBuilder(TransactionBuilder):
+    def add_required_fees(self, ops, asset_id="1.3.0"):
+        return ops
 
 class BitShares(AbstractGrapheneChain, SyncBitShares):
     """
@@ -56,7 +59,7 @@ class BitShares(AbstractGrapheneChain, SyncBitShares):
         self.rpc_class = BitSharesNodeRPC
         self.default_key_store_app_name = "bitshares"
         self.proposalbuilder_class = ProposalBuilder
-        self.transactionbuilder_class = TransactionBuilder
+        self.transactionbuilder_class = GolosTransactionBuilder
         self.blockchainobject_class = BlockchainObject
 
     # -------------------------------------------------------------------------
