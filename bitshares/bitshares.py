@@ -137,12 +137,10 @@ class BitShares(AbstractGrapheneChain):
         :param str to: Recipient
         :param float amount: Amount to transfer
         :param str asset: Asset to transfer
-        :param str memo: (optional) Memo, may begin with `#` for encrypted
-            messaging
+        :param str memo: String. Encryption is not yet supported
         :param str account: (optional) the source account for the transfer
             if not ``default_account``
         """
-        from .memo import Memo
 
         if not account:
             if "default_account" in self.config:
@@ -154,16 +152,12 @@ class BitShares(AbstractGrapheneChain):
         amount = Amount(amount, asset, blockchain_instance=self)
         to = Account(to, blockchain_instance=self)
 
-        memoObj = Memo(from_account=account, to_account=to, blockchain_instance=self)
-
         op = operations.Transfer(
             **{
-                "fee": {"amount": 0, "asset_id": "1.3.0"},
-                "from": account["id"],
-                "to": to["id"],
-                "amount": {"amount": int(amount), "asset_id": amount.asset["id"]},
-                "memo": memoObj.encrypt(memo),
-                "prefix": self.prefix,
+                "from": account.name,
+                "to": to.name,
+                "amount": amount,
+                "memo": memo,
             }
         )
         return self.finalizeOp(op, account, "active", **kwargs)

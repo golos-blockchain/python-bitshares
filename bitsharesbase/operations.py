@@ -85,7 +85,7 @@ def getOperationNameForId(i):
     return "Unknown Operation ID %d" % i
 
 
-class Transfer(GrapheneObject):
+class Transfer_BS(GrapheneObject):
     def __init__(self, *args, **kwargs):
         # Allow for overwrite of prefix
         if isArgsThisClass(self, args):
@@ -111,6 +111,25 @@ class Transfer(GrapheneObject):
                         ("amount", Asset(kwargs["amount"])),
                         ("memo", memo),
                         ("extensions", Set([])),
+                    ]
+                )
+            )
+
+class Transfer(GrapheneObject):
+    def __init__(self, *args, **kwargs):
+        # Allow for overwrite of prefix
+        if isArgsThisClass(self, args):
+            self.data = args[0].data
+        else:
+            if len(args) == 1 and len(kwargs) == 0:
+                kwargs = args[0]
+            super().__init__(
+                OrderedDict(
+                    [
+                        ("from", String(kwargs["from"])),
+                        ("to", String(kwargs["to"])),
+                        ("amount", GolosAmount(kwargs["amount"])),
+                        ("memo", String(kwargs["memo"])),
                     ]
                 )
             )
